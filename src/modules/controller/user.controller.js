@@ -4,13 +4,10 @@ const showMessage = async (req, res = Response) => {
   try {
     const { message } = req.body;
 
-    const replace = escapeRegExp(message);
-    console.log(replace);
-
-    if (replace)
-      return res
-        .status(400)
-        .json({ message: "No se admiten caracteres especiales" });
+    const hasSpecialCharacters = escapeRegExp(message);
+    if (hasSpecialCharacters) {
+      return res.status(400).json({ message: "No se admiten caracteres especiales" });
+    }
 
     const splitted = splitMessage(message);
 
@@ -22,24 +19,16 @@ const showMessage = async (req, res = Response) => {
 };
 
 function splitMessage(message) {
-  const array = {};
+  const array = [];
+
   for (let i = 0; i < message.length; i++) {
-    message[i] = new Array();
-    array.push(
-      (message[i][0] = `https://img.icons8.com/ios/50/sign-language-${message[
-        i
-      ].toLowerCase()}.png`)
-    );
-    // if (message[i] !== " ") {
-    //   array.push(message[i]);
-    //   array.push(
-    //     `https://img.icons8.com/ios/50/sign-language-${message[
-    //       i
-    //     ].toLowerCase()}.png`
-    //   );
-    // } else {
-    //   array.push(message[i])
-    // }
+    const char = message[i];
+    if (char !== " ") {
+      const imageUrl = `https://img.icons8.com/ios/50/sign-language-${char.toLowerCase()}.png`;
+      array.push([char, imageUrl]);
+    } else {
+      array.push([char, ""]);
+    }
   }
 
   return array;

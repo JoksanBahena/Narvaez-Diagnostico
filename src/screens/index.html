@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumir Servicio con Fetch</title>
+</head>
+
+<body>
+    <form id="messageForm">
+        <label for="message">Ingrese un mensaje:</label>
+        <input type="text" id="message" name="message" required>
+        <button type="submit">Enviar</button>
+    </form>
+
+    <div id="result" style="display: flex;"></div>
+
+    <script>
+        document.getElementById('messageForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const message = formData.get('message');
+
+            try {
+                const response = await fetch('http://localhost:3000/user/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Error al obtener los datos');
+                }
+
+                displayResult(data);
+            } catch (error) {
+                console.error('Error:', error.message);
+                displayResult({ error: error.message });
+            }
+        });
+
+        function displayResult(data) {
+            const resultDiv = document.getElementById('result');
+
+            if (data.error) {
+                resultDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+            } else {
+                let html = '';
+
+                data.forEach(item => {
+                    html += `<div>${item[0]}`
+                    if (item[1] !== '') {
+                        html += `<img src="${item[1]}" alt="${item[0]}">`
+                    } else {
+                        html+= "</br></br>"
+                    }
+                });
+
+                html+= "</div>"
+                resultDiv.innerHTML = html;
+            }
+        }
+    </script>
+</body>
+
+</html>
